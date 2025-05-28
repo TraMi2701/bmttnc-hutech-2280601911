@@ -1,10 +1,14 @@
 from flask import Flask, request, jsonify
 from cipher.caesar.caesar_cipher import CaesarCipher
+from cipher.railfence.railfence_cipher import RailFenceCipher
 
 app = Flask(__name__)
 
 #Caesar Cipher
 caesar_cipher = CaesarCipher()
+
+#Railfence Cipher
+railfence_cipher = RailFenceCipher()
 
 @app.route("/api/caesar/encrypt", methods=["POST"])
 def caesar_encrypt():
@@ -19,6 +23,13 @@ def caesar_decrypt():
     cipher_text = data['cipher_text']
     key = int(data['key'])
     decrypted_text = caesar_cipher.decrypt_text(cipher_text, key)
+    return jsonify({'decrypted_message': decrypted_text})
+@app.route("/api/railfence/decrypt", methods=["POST"])
+def railfence_decrypt():
+    data = request.json
+    cipher_text = data['cipher_text']
+    key = int(data['key'])
+    decrypted_text = railfence_cipher.railfence_decipher(cipher_text, key)
     return jsonify({'decrypted_message': decrypted_text})
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
