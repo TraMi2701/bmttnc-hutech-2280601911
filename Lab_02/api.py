@@ -17,6 +17,7 @@ def caesar_encrypt():
     key = int(data['key'])
     encrypted_text = caesar_cipher.encrypt_text(plain_text, key)
     return jsonify({'encrypted_message': encrypted_text})
+
 @app.route("/api/caesar/decrypt", methods=["POST"])
 def caesar_decrypt():
     data = request.json
@@ -90,6 +91,7 @@ def playfair_decrypt():
         playfair_matrix = playfair_cipher.create_playfair_matrix(key)
         decrypted_text = playfair_cipher.playfair_decipher(cipher_text, playfair_matrix)
         return jsonify({'decrypted_text': decrypted_text})
+
 #Transposition Cipher
 transposition_cipher = TranspositionCipher()
 
@@ -108,5 +110,26 @@ def transposition_decrypt():
     key = int(data.get('key'))
     decrypted_text = transposition_cipher.decrypt(cipher_text, key)
     return jsonify({'decrypted_text': decrypted_text})    
+
+@app.route('/encrypt', methods=['POST'])
+def encrypt():
+    data = request.get_json()
+    plain_text = data.get('plain_text', '')
+    key = int(data.get('key', 0))
+    encrypted_message = caesar_cipher.encrypt_text(plain_text, key)
+    return jsonify({'encrypted_message': encrypted_message})
+
+@app.route('/decrypt', methods=['POST'])
+def decrypt():
+    data = request.get_json()
+    cipher_text = data.get('cipher_text', '')
+    key = int(data.get('key', 0))
+    decrypted_message = caesar_cipher.decrypt_text(cipher_text, key)
+    return jsonify({'decrypted_message': decrypted_message})
+
+@app.route('/N', methods=['GET'])
+def check():
+    return "OK", 200
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True) 
