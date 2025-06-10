@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from cipher.rsa import RSACipher
+from cipher.ecc import ECCcipher
 
 app = Flask(__name__)
 
@@ -66,6 +67,39 @@ def rsa_verify():
     signature = bytes.fromhex(signature_hex)
 
     is_verified = rsa_cipher.verify(message, signature, public_key)
+    return jsonify({'is_verified': is_verified})
+# Thêm đoạn này trước hàm main
+# (Assuming 'app' and 'request', 'jsonify' from Flask are imported)
+# Example imports if this is part of a Flask app:
+# from flask import Flask, request, jsonify
+# app = Flask(__name__)
+
+# Assuming the ECCcipher class from the previous code snippet is defined and available.
+
+ecc_cipher = ECCcipher()
+
+@app.route('/api/ecc/generate_keys', methods=['GET'])
+def ecc_generate_keys():
+    ecc_cipher.generate_keys()
+    return jsonify({'message': 'Keys generated successfully'})
+
+@app.route('/api/ecc/sign', methods=['POST'])
+def ecc_sign_message():
+    data = request.json
+    message = data['message']
+    private_key, _ = ecc_cipher.load_keys()
+    signature = ecc_cipher.sign(message, private_key)
+    signature_hex = signature.hex()
+    return jsonify({'signature': signature_hex})
+
+@app.route('/api/ecc/verify', methods=['POST'])
+def ecc_verify_signature():
+    data = request.json
+    message = data['message']
+    signature_hex = data['signature']
+    _, public_key = ecc_cipher.load_keys()
+    signature = bytes.fromhex(signature_hex)
+    is_verified = ecc_cipher.verify(message, signature, public_key)
     return jsonify({'is_verified': is_verified})
 
 
