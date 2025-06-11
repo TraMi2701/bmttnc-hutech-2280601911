@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from cipher.rsa import RSACipher
 from cipher.ecc import ECCcipher
+from cipher.caesar.caesar_cipher import CaesarCipher
 
 app = Flask(__name__)
 
@@ -68,11 +69,6 @@ def rsa_verify():
 
     is_verified = rsa_cipher.verify(message, signature, public_key)
     return jsonify({'is_verified': is_verified})
-# Thêm đoạn này trước hàm main
-# (Assuming 'app' and 'request', 'jsonify' from Flask are imported)
-# Example imports if this is part of a Flask app:
-# from flask import Flask, request, jsonify
-# app = Flask(__name__)
 
 # Assuming the ECCcipher class from the previous code snippet is defined and available.
 
@@ -102,6 +98,23 @@ def ecc_verify_signature():
     is_verified = ecc_cipher.verify(message, signature, public_key)
     return jsonify({'is_verified': is_verified})
 
+@app.route('/api/caesar/encrypt', methods=['POST'])
+def caesar_encrypt():
+    data = request.json
+    text = data.get('plain_text')
+    key = int(data.get('key'))
+    cipher = CaesarCipher()
+    encrypted = cipher.encrypt_text(text, key)
+    return jsonify({'cipher_text': encrypted})
+
+@app.route('/api/caesar/decrypt', methods=['POST'])
+def caesar_decrypt():
+    data = request.json
+    text = data.get('cipher_text')
+    key = int(data.get('key'))
+    cipher = CaesarCipher()
+    decrypted = cipher.decrypt_text(text, key)
+    return jsonify({'plain_text': decrypted})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
