@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-from caesar import Ui_MainWindow
+from ui.caesar import Ui_MainWindow
 import requests
 
 class MyApp(QMainWindow):
@@ -43,7 +43,7 @@ class MyApp(QMainWindow):
             self.show_error("Key must be a number")
             return
             
-        url = "http://127.0.0.1:5000/encrypt"
+        url = "http://127.0.0.1:5000/api/caesar/encrypt"
         payload = {
             "plain_text": plain_text,
             "key": key
@@ -52,7 +52,7 @@ class MyApp(QMainWindow):
             response = requests.post(url, json=payload)
             if response.status_code == 200:
                 data = response.json()
-                self.ui.textEdit_3.setPlainText(data["encrypted_message"])
+                self.ui.textEdit_3.setPlainText(data["cipher_text"])
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText("Encrypted Successfully")
@@ -87,7 +87,7 @@ class MyApp(QMainWindow):
             self.show_error("Key must be a number")
             return
             
-        url = "http://127.0.0.1:5000/decrypt"
+        url = "http://127.0.0.1:5000/api/caesar/decrypt"
         payload = {
             "cipher_text": cipher_text,
             "key": key
@@ -96,7 +96,7 @@ class MyApp(QMainWindow):
             response = requests.post(url, json=payload)
             if response.status_code == 200:
                 data = response.json()
-                self.ui.textEdit.setPlainText(data["decrypted_message"])
+                self.ui.textEdit.setPlainText(data["plain_text"])
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText("Decrypted Successfully")
