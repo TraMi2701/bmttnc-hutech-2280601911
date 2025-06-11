@@ -3,15 +3,23 @@ from .alphabet import alphabet
 class CaesarCipher:
     def __init__(self):
         self.alphabet = alphabet
+        self.alphabet_upper = alphabet.upper()
 
     def encrypt_text(self, plain_text: str, key: int) -> str:
+        if not isinstance(key, int):
+            raise ValueError("Key must be an integer")
+            
         encrypted_text = ""
         for char in plain_text:
-            if char in self.alphabet:
+            if char in self.alphabet:  # lowercase
                 position = self.alphabet.index(char)
                 new_position = (position + key) % len(self.alphabet)
                 encrypted_text += self.alphabet[new_position]
-            else:
+            elif char in self.alphabet_upper:  # uppercase
+                position = self.alphabet_upper.index(char)
+                new_position = (position + key) % len(self.alphabet)
+                encrypted_text += self.alphabet_upper[new_position]
+            else:  # spaces and special characters
                 encrypted_text += char
         return encrypted_text
 

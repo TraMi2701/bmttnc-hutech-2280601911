@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, json
+from flask import Flask, render_template, request, jsonify
 from cipher.caesar.caesar_cipher import CaesarCipher
 from cipher.vigenere.vigenere_cipher import VigenereCipher
 from cipher.playfair.playfair_cipher import PlayFairCipher
@@ -30,59 +30,131 @@ def transposition():
 @app.route("/playfair")
 def playfair():
     return render_template("playfair.html")
-#Caesar Cipher
 
+#Caesar Cipher
 @app.route("/caesar/encrypt", methods=["POST"])
 def caesar_encrypt():
-    text = request.form["inputPlainText"]
-    key = int(request.form["inputKeyPlain"])
-    Caesar = CaesarCipher()
-    encrypted_text = Caesar.encrypt_text(text, key)
-    return f"text: {text}<br/>key: {key}<br/>encrypted_text: {encrypted_text}"
+    try:
+        text = request.form["inputPlainText"]
+        key = int(request.form["inputKeyPlain"])
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if not isinstance(key, int):
+            return "Error: Key must be an integer", 400
+            
+        Caesar = CaesarCipher()
+        encrypted_text = Caesar.encrypt_text(text, key)
+        return render_template("caesar.html", 
+                             result=f"Encrypted text: {encrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
 @app.route("/caesar/decrypt", methods=["POST"])
 def caesar_decrypt():
-    text = request.form["inputCipherText"]
-    key = int(request.form["inputKeyCipher"])
-    Caesar = CaesarCipher()
-    decrypted_text = Caesar.decrypt_text(text, key)
-    return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
+    try:
+        text = request.form["inputCipherText"]
+        key = int(request.form["inputKeyCipher"])
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if not isinstance(key, int):
+            return "Error: Key must be an integer", 400
+            
+        Caesar = CaesarCipher()
+        decrypted_text = Caesar.decrypt_text(text, key)
+        return render_template("caesar.html", 
+                             result=f"Decrypted text: {decrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
 #Vigenere Cipher
-
 @app.route("/vigenere/encrypt", methods=["POST"])
 def vigenere_encrypt():
-    text = request.form["inputPlainText"]
-    key = request.form["inputKeyPlain"]
-    Vigenere = VigenereCipher()
-    encrypted_text = Vigenere.vigener_cipher(text, key)
-    return f"text: {text}<br/>key: {key}<br/>encrypted_text: {encrypted_text}"
+    try:
+        text = request.form["inputPlainText"]
+        key = request.form["inputKeyPlain"]
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if not key:
+            return "Error: Key cannot be empty", 400
+        if not all(c.isalpha() for c in key):
+            return "Error: Key must contain only letters", 400
+            
+        Vigenere = VigenereCipher()
+        encrypted_text = Vigenere.vigener_cipher(text, key)
+        return render_template("vigenere.html", 
+                             result=f"Encrypted text: {encrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
 @app.route("/vigenere/decrypt", methods=["POST"])
 def vigenere_decrypt():
-    text = request.form["inputCipherText"]
-    key = request.form["inputKeyCipher"]
-    Vigenere = VigenereCipher()
-    decrypted_text = Vigenere.vigener_decipher(text, key)
-    return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
+    try:
+        text = request.form["inputCipherText"]
+        key = request.form["inputKeyCipher"]
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if not key:
+            return "Error: Key cannot be empty", 400
+        if not all(c.isalpha() for c in key):
+            return "Error: Key must contain only letters", 400
+            
+        Vigenere = VigenereCipher()
+        decrypted_text = Vigenere.vigener_decipher(text, key)
+        return render_template("vigenere.html", 
+                             result=f"Decrypted text: {decrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
-# #Railfence Cipher
-
+#Railfence Cipher
 @app.route("/railfence/encrypt", methods=["POST"])
 def railfence_encrypt():
-    text = request.form["inputPlainText"]
-    key = int(request.form["inputKeyPlain"])
-    Railfence = RailFenceCipher()
-    encrypted_text = Railfence.railfence_cipher(text, key)
-    return f"text: {text}<br/>key: {key}<br/>encrypted_text: {encrypted_text}"
+    try:
+        text = request.form["inputPlainText"]
+        key = int(request.form["inputKeyPlain"])
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if key < 2:
+            return "Error: Key must be at least 2", 400
+            
+        Railfence = RailFenceCipher()
+        encrypted_text = Railfence.railfence_cipher(text, key)
+        return render_template("railfence.html", 
+                             result=f"Encrypted text: {encrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except ValueError:
+        return "Error: Key must be a number", 400
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
 @app.route("/railfence/decrypt", methods=["POST"])
 def railfence_decrypt():
-    text = request.form["inputCipherText"]
-    key = int(request.form["inputKeyCipher"])
-    Railfence = RailFenceCipher()
-    decrypted_text = Railfence.railfence_decipher(text, key)
-    return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
+    try:
+        text = request.form["inputCipherText"]
+        key = int(request.form["inputKeyCipher"])
+        if not text:
+            return "Error: Text cannot be empty", 400
+        if key < 2:
+            return "Error: Key must be at least 2", 400
+            
+        Railfence = RailFenceCipher()
+        decrypted_text = Railfence.railfence_decipher(text, key)
+        return render_template("railfence.html", 
+                             result=f"Decrypted text: {decrypted_text}",
+                             input_text=text,
+                             input_key=key)
+    except ValueError:
+        return "Error: Key must be a number", 400
+    except Exception as e:
+        return f"Error: {str(e)}", 400
 
 # #Transposition Cipher
 
