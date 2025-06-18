@@ -4,6 +4,7 @@ from cipher.vigenere.vigenere_cipher import VigenereCipher
 from cipher.railfence.railfence_cipher import RailFenceCipher 
 from cipher.playfair.playfair_cipher import PlayFairCipher
 from cipher.transposition import TranspositionCipher
+from cipher.ecc.ecc_cipher import ECCCipher
 
 app = Flask(__name__)
 
@@ -130,6 +131,29 @@ def decrypt():
 @app.route('/N', methods=['GET'])
 def check():
     return "OK", 200
+
+# ECC Cipher
+ecc_cipher = ECCCipher()
+
+@app.route('/api/ecc/generate_keys', methods=['GET'])
+def ecc_generate_keys():
+    ecc_cipher.generate_keys()
+    return jsonify({'message': 'Keys generated successfully'})
+
+@app.route('/api/ecc/sign', methods=['POST'])
+def ecc_sign():
+    data = request.json
+    message = data['message']
+    signature = ecc_cipher.sign(message)
+    return jsonify({'signature': signature})
+
+@app.route('/api/ecc/verify', methods=['POST'])
+def ecc_verify():
+    data = request.json
+    message = data['message']
+    signature = data['signature']
+    is_verified = ecc_cipher.verify(message, signature)
+    return jsonify({'is_verified': is_verified})
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True) 

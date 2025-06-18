@@ -1,37 +1,33 @@
-from flask import Flask, render_template, request, json
+from flask import Flask, render_template, request
 from cipher.caesar.caesar_cipher import CaesarCipher
 from cipher.vigenere.vigenere_cipher import VigenereCipher
 from cipher.playfair.playfair_cipher import PlayFairCipher
 from cipher.railfence.railfence_cipher import RailFenceCipher
-from cipher.transposition.transposition_cipher  import TranspositionCipher
+from cipher.transposition.transposition_cipher import TranspositionCipher
 
 app = Flask(__name__)
 
+# ------------------- Trang chính -------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route("/caesar")   
-def caesar():
-    return render_template("caesar.html")
+@app.route("/caesar")
+def caesar(): return render_template("caesar.html")
 
 @app.route("/vigenere")
-def vigenere():
-    return render_template("vigenere.html")
+def vigenere(): return render_template("vigenere.html")
 
 @app.route("/railfence")
-def railfence():
-    return render_template("railfence.html")
+def railfence(): return render_template("railfence.html")
 
 @app.route("/transposition")
-def transposition():
-    return render_template("transposition.html")
+def transposition(): return render_template("transposition.html")
 
 @app.route("/playfair")
-def playfair():
-    return render_template("playfair.html")
-#Caesar Cipher
+def playfair(): return render_template("playfair.html")
 
+# ------------------- Caesar Cipher -------------------
 @app.route("/caesar/encrypt", methods=["POST"])
 def caesar_encrypt():
     text = request.form["inputPlainText"]
@@ -48,26 +44,32 @@ def caesar_decrypt():
     decrypted_text = Caesar.decrypt_text(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
 
-#Vigenere Cipher
-
+# ------------------- Vigenere Cipher -------------------
 @app.route("/vigenere/encrypt", methods=["POST"])
 def vigenere_encrypt():
     text = request.form["inputPlainText"]
     key = request.form["inputKeyPlain"]
+
+    if not key.isalpha():
+        return "❌ Key phải là chữ cái (không chứa số hoặc ký tự đặc biệt)."
+
     Vigenere = VigenereCipher()
-    encrypted_text = Vigenere.vigener_cipher(text, key)
+    encrypted_text = Vigenere.vigenere_encrypt(text, key)
     return f"text: {text}<br/>key: {key}<br/>encrypted_text: {encrypted_text}"
 
 @app.route("/vigenere/decrypt", methods=["POST"])
 def vigenere_decrypt():
     text = request.form["inputCipherText"]
     key = request.form["inputKeyCipher"]
+
+    if not key.isalpha():
+        return "❌ Key phải là chữ cái (không chứa số hoặc ký tự đặc biệt)."
+
     Vigenere = VigenereCipher()
-    decrypted_text = Vigenere.vigener_decipher(text, key)
+    decrypted_text = Vigenere.vigenere_decrypt(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
 
-# #Railfence Cipher
-
+# ------------------- Rail Fence Cipher -------------------
 @app.route("/railfence/encrypt", methods=["POST"])
 def railfence_encrypt():
     text = request.form["inputPlainText"]
@@ -84,8 +86,7 @@ def railfence_decrypt():
     decrypted_text = Railfence.railfence_decipher(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
 
-# #Transposition Cipher
-
+# ------------------- Transposition Cipher -------------------
 @app.route("/transposition/encrypt", methods=["POST"])
 def transposition_encrypt():
     text = request.form["inputPlainText"]
@@ -102,8 +103,7 @@ def transposition_decrypt():
     decrypted_text = Transposition.decrypt(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
 
-# #Playfair Cipher
-
+# ------------------- Playfair Cipher -------------------
 @app.route("/matrix", methods=["POST"])
 def create_playfair_matrix():
     key = request.form["inputKeyPlain"].upper().replace("J", "I")
@@ -121,15 +121,12 @@ def create_playfair_matrix():
             matrix.append(char)
 
     playfair_matrix = [matrix[i:i + 5] for i in range(0, len(matrix), 5)]
-    
+
     matrix_html = "<table border='1'>"
     for row in playfair_matrix:
-        matrix_html += "<tr>"
-        for char in row:
-            matrix_html += f"<td>{char}</td>"
-        matrix_html += "</tr>"
+        matrix_html += "<tr>" + "".join(f"<td>{char}</td>" for char in row) + "</tr>"
     matrix_html += "</table>"
-    
+
     return matrix_html
 
 @app.route("/playfair/encrypt", methods=["POST"])
@@ -146,9 +143,10 @@ def playfair_decrypt():
     text = request.form["inputCipherText"].upper().replace("J", "I")
     key = request.form["inputKeyCipher"].upper().replace("J", "I")
     Playfair = PlayFairCipher()
-    matrix =  Playfair.create_playfair_matrix(key)
+    matrix = Playfair.create_playfair_matrix(key)
     decrypted_text = Playfair.playfair_decipher(text, matrix)
     return f"text: {text}<br/>key: {key}<br/>decrypted_text: {decrypted_text}"
-    
+
+# ------------------- Run App -------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050, debug=True)

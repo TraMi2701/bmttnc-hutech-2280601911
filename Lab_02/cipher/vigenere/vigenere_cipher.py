@@ -1,8 +1,8 @@
 class VigenereCipher:
     def __init__(self):
         pass
-    
-    def vigener_cipher(self, plain_text, key):
+
+    def vigenere_encrypt(self, plain_text, key):
         encrypted_text = ""
         key_index = 0
         for char in plain_text:
@@ -16,8 +16,8 @@ class VigenereCipher:
             else:
                 encrypted_text += char
         return encrypted_text
-    
-    def vigener_decipher(self, encrypted_text, key):
+
+    def vigenere_decrypt(self, encrypted_text, key):
         decrypted_text = ""
         key_index = 0
         for char in encrypted_text:
